@@ -20,11 +20,12 @@ from PySide6.QtWidgets import (
     QTableWidget, QTableWidgetItem, QHeaderView,
     QTabWidget, QMessageBox, QFileDialog,
     QFrame, QScrollArea, QGraphicsDropShadowEffect,
+    QProgressBar,
 )
-from PySide6.QtCore  import Qt, QRect
+from PySide6.QtCore  import Qt, QRect, QThread, Signal, QTimer, QEventLoop
 from PySide6.QtGui   import (
     QFont, QColor, QLinearGradient, QPainter,
-    QBrush, QPen, QPainterPath,
+    QBrush, QPen, QPainterPath, QPixmap, QIcon,
 )
 
 import pyqtgraph as pg
@@ -44,6 +45,8 @@ from src.db import (
 # Paths
 # ---------------------------------------------------------------------------
 _SRC   = Path(__file__).parent
+_ROOT  = _SRC.parent
+_LOGO  = _ROOT / "logo.png"
 _META  = _SRC / "app_meta.json"
 
 # ---------------------------------------------------------------------------
@@ -316,7 +319,8 @@ class MarkField(QWidget):
 class SetupDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("First-Time Setup")
+        self.setWindowTitle("StatSketch — Setup")
+        if _LOGO.exists(): self.setWindowIcon(QIcon(str(_LOGO)))
         self.setMinimumWidth(400)
         self.setModal(True)
         self.key = None
@@ -325,8 +329,8 @@ class SetupDialog(QDialog):
         root.setSpacing(16)
         root.setContentsMargins(32, 32, 32, 32)
 
-        root.addWidget(label("🔧  First-Time Setup", object_name="heading"))
-        root.addWidget(label("Create a master password to secure your data.", object_name="subheading"))
+        root.addWidget(label("✨  StatSketch Setup", object_name="heading"))
+        root.addWidget(label("Create a master password to encrypt your workspace.", object_name="subheading"))
         root.addWidget(divider())
 
         form = QFormLayout()
@@ -369,7 +373,8 @@ class SetupDialog(QDialog):
 class LoginDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("Student Marks App — Login")
+        self.setWindowTitle("StatSketch — Login")
+        if _LOGO.exists(): self.setWindowIcon(QIcon(str(_LOGO)))
         self.setMinimumWidth(380)
         self.setModal(True)
         self.key = None
@@ -378,8 +383,8 @@ class LoginDialog(QDialog):
         root.setSpacing(16)
         root.setContentsMargins(32, 32, 32, 32)
 
-        root.addWidget(label("🔐  Secure Login", object_name="heading"))
-        root.addWidget(label("Enter your master password to continue.", object_name="subheading"))
+        root.addWidget(label("🔐  StatSketch Login", object_name="heading"))
+        root.addWidget(label("Enter your master password to unlock your records.", object_name="subheading"))
         root.addWidget(divider())
 
         self.pwd = QLineEdit()
@@ -1391,7 +1396,9 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.key = key
         self.db  = SessionLocal()
-        self.setWindowTitle("Student Marks Calculator")
+        self.setWindowTitle("StatSketch")
+        if _LOGO.exists():
+            self.setWindowIcon(QIcon(str(_LOGO)))
         self.setMinimumSize(980, 680)
         self._build()
 
@@ -1404,7 +1411,7 @@ class MainWindow(QMainWindow):
 
         # Sidebar
         sidebar = QWidget()
-        sidebar.setFixedWidth(210)
+        sidebar.setFixedWidth(214)
         sidebar.setStyleSheet(
             f"background:{C_SURFACE}; border-right:1px solid {C_BORDER};"
         )
@@ -1412,12 +1419,25 @@ class MainWindow(QMainWindow):
         sb.setSpacing(4)
         sb.setContentsMargins(14, 20, 14, 18)
 
-        # Clean app brand inside sidebar
-        brand = mk_label("📊  Percent Calc", 14, bold=True)
-        brand.setStyleSheet(f"color:{C_TEXT}; padding: 2px 4px;")
-        sb.addWidget(brand)
+        # Clean StatSketch branding inside sidebar with logo
+        brand_row = QHBoxLayout()
+        brand_row.setSpacing(10)
+        brand_row.setContentsMargins(2, 0, 2, 0)
+        if _LOGO.exists():
+            pix = QPixmap(str(_LOGO))
+            if not pix.isNull():
+                lbl_icon = QLabel()
+                lbl_icon.setPixmap(pix.scaled(28, 28, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+                lbl_icon.setStyleSheet("background:transparent;")
+                brand_row.addWidget(lbl_icon)
+        brand = mk_label("StatSketch", 15, bold=True)
+        brand.setStyleSheet(f"color:{C_TEXT}; letter-spacing:0.5px; background:transparent;")
+        brand_row.addWidget(brand)
+        brand_row.addStretch()
+        sb.addLayout(brand_row)
+
         sec = mk_label("🔒 AES-256 Encrypted", 9, color=C_SUBTEXT)
-        sec.setStyleSheet(f"color:{C_SUBTEXT}; padding-left: 6px;")
+        sec.setStyleSheet(f"color:{C_SUBTEXT}; padding-left: 2px;")
         sb.addWidget(sec)
         sb.addSpacing(14)
         sb.addWidget(h_div())
@@ -1452,7 +1472,7 @@ class MainWindow(QMainWindow):
         sb.addStretch()
         sb.addWidget(h_div())
         sb.addSpacing(10)
-        ver = mk_label("v3.0  ·  Float marks enabled", 9, color=C_SUBTEXT)
+        ver = mk_label("StatSketch v3.0", 9, color=C_SUBTEXT)
         ver.setAlignment(Qt.AlignCenter)
         sb.addWidget(ver)
 
@@ -1465,7 +1485,7 @@ class MainWindow(QMainWindow):
             f"border-top:1px solid {C_BORDER};"
         )
         self.statusBar().showMessage(
-            "  Ready  ·  Float marks supported  ·  AES-256-GCM encryption"
+            "  StatSketch v3.0  ·  Float marks supported  ·  AES-256-GCM encryption"
         )
         self._switch(0)
 
@@ -1491,27 +1511,230 @@ class MainWindow(QMainWindow):
         if idx == 1: self.stats_tab.refresh()
         if idx == 2: self.graph_tab.refresh()
 
+
+# ---------------------------------------------------------------------------
+# Async Splash Screen with Logo & Active Progress Loader
+# ---------------------------------------------------------------------------
+class InitWorker(QThread):
+    progress = Signal(int, str)  # percent, message
+    finished = Signal()
+
+    def run(self):
+        import time
+
+        steps = [
+            (18, "Initializing StatSketch core engine..."),
+            (38, "Verifying cryptographic security primitives..."),
+            (58, "Connecting to database & migrating schema..."),
+            (78, "Loading analytics & charting modules..."),
+            (92, "Configuring workspace & design system..."),
+            (100, "StatSketch is ready!"),
+        ]
+
+        # Step 1: Pre-warm core
+        time.sleep(0.12)
+        self.progress.emit(steps[0][0], steps[0][1])
+
+        # Step 2: Crypto test
+        from src.crypto import store_password_meta
+        time.sleep(0.15)
+        self.progress.emit(steps[1][0], steps[1][1])
+
+        # Step 3: Database init
+        init_db()
+        time.sleep(0.15)
+        self.progress.emit(steps[2][0], steps[2][1])
+
+        # Step 4: Charts configuration
+        pg.setConfigOption("background", C_SURFACE)
+        pg.setConfigOption("foreground", C_TEXT)
+        time.sleep(0.15)
+        self.progress.emit(steps[3][0], steps[3][1])
+
+        # Step 5: Final prep
+        time.sleep(0.12)
+        self.progress.emit(steps[4][0], steps[4][1])
+
+        time.sleep(0.10)
+        self.progress.emit(steps[5][0], steps[5][1])
+        time.sleep(0.08)
+        self.finished.emit()
+
+
+class SplashScreen(QWidget):
+    """
+    Modern frameless splash screen with animated gradient loader,
+    custom-branded logo, and real-time async initialization status.
+    """
+    completed = Signal()
+
+    def __init__(self):
+        super().__init__()
+        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.SplashScreen)
+        self.setAttribute(Qt.WA_TranslucentBackground)
+        self.setFixedSize(500, 340)
+
+        self._progress_val = 0
+        self._target_val = 0
+        self._is_closing = False
+
+        self._build()
+        self._center()
+
+        # Smooth timer for fluid progress bar movement
+        self._anim_timer = QTimer(self)
+        self._anim_timer.timeout.connect(self._step_progress)
+        self._anim_timer.start(16)  # ~60 fps
+
+        # Background worker thread
+        self.worker = InitWorker()
+        self.worker.progress.connect(self._on_worker_progress)
+        self.worker.finished.connect(self._on_worker_finished)
+
+    def _center(self):
+        screen = QApplication.primaryScreen()
+        if screen:
+            geo = screen.availableGeometry()
+            x = (geo.width() - self.width()) // 2
+            y = (geo.height() - self.height()) // 2
+            self.move(x, y)
+
+    def _build(self):
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(16, 16, 16, 16)
+
+        # Card container with rounded gradient background
+        card = QFrame()
+        card.setObjectName("splashCard")
+        card.setStyleSheet(
+            f"#splashCard {{ "
+            f"  background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #12122b, stop:1 #1a1a38);"
+            f"  border: 1.5px solid {C_BORDER};"
+            f"  border-radius: 20px;"
+            f"}}"
+        )
+        shadow(card, 30, "#000000", (0, 8))
+
+        cl = QVBoxLayout(card)
+        cl.setContentsMargins(36, 30, 36, 26)
+        cl.setSpacing(10)
+
+        # Logo display
+        logo_lbl = QLabel()
+        logo_lbl.setAlignment(Qt.AlignCenter)
+        if _LOGO.exists():
+            pix = QPixmap(str(_LOGO))
+            if not pix.isNull():
+                scaled = pix.scaled(88, 88, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                logo_lbl.setPixmap(scaled)
+        if not logo_lbl.pixmap():
+            logo_lbl.setText("📊")
+            logo_lbl.setStyleSheet(f"font-size: 64px; color: {C_ACCENT};")
+        cl.addWidget(logo_lbl, alignment=Qt.AlignCenter)
+
+        # App Brand Title
+        title = mk_label("StatSketch", 22, bold=True)
+        title.setAlignment(Qt.AlignCenter)
+        title.setStyleSheet("color: white; letter-spacing: 1px;")
+        cl.addWidget(title)
+
+        # Subtitle
+        sub = mk_label("Student Performance & Analytics Suite", 11, color=C_SUBTEXT)
+        sub.setAlignment(Qt.AlignCenter)
+        cl.addWidget(sub)
+
+        cl.addSpacing(12)
+
+        # Progress bar
+        self.bar = QProgressBar()
+        self.bar.setFixedHeight(6)
+        self.bar.setRange(0, 100)
+        self.bar.setValue(0)
+        self.bar.setTextVisible(False)
+        self.bar.setStyleSheet(
+            f"QProgressBar {{ background: {C_CARD}; border: none; border-radius: 3px; }}"
+            f"QProgressBar::chunk {{ "
+            f"  background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 {C_ACCENT}, stop:0.6 {C_ACCENT2}, stop:1 {C_TEAL});"
+            f"  border-radius: 3px;"
+            f"}}"
+        )
+        cl.addWidget(self.bar)
+
+        # Status text row: Status message (left) + Percentage (right)
+        status_row = QHBoxLayout()
+        self.lbl_status = mk_label("Starting StatSketch...", 10, color=C_SUBTEXT)
+        self.lbl_pct = mk_label("0%", 10, bold=True, color=C_ACCENT)
+        self.lbl_pct.setAlignment(Qt.AlignRight)
+        status_row.addWidget(self.lbl_status)
+        status_row.addStretch()
+        status_row.addWidget(self.lbl_pct)
+        cl.addLayout(status_row)
+
+        layout.addWidget(card)
+
+    def _step_progress(self):
+        if self._progress_val < self._target_val:
+            step = max(1, int((self._target_val - self._progress_val) * 0.25))
+            self._progress_val = min(self._target_val, self._progress_val + step)
+            self.bar.setValue(self._progress_val)
+            self.lbl_pct.setText(f"{self._progress_val}%")
+        elif self._progress_val >= 100 and not self._is_closing:
+            self._is_closing = True
+            self._anim_timer.stop()
+            QTimer.singleShot(200, self._finish_and_close)
+
+    def _on_worker_progress(self, val, msg):
+        self._target_val = val
+        self.lbl_status.setText(msg)
+
+    def _on_worker_finished(self):
+        self._target_val = 100
+
+    def _finish_and_close(self):
+        self.close()
+        self.completed.emit()
+
+    def start_loading(self):
+        self.show()
+        self.worker.start()
+
+
 # ---------------------------------------------------------------------------
 # Entry point
 # ---------------------------------------------------------------------------
 def main():
     app = QApplication(sys.argv)
+    app.setApplicationName("StatSketch")
     app.setStyleSheet(GLOBAL_SS)
 
-    init_db()
+    if _LOGO.exists():
+        app.setWindowIcon(QIcon(str(_LOGO)))
+
+    # Async splash screen with logo & active progress loader
+    splash = SplashScreen()
+    loop = QEventLoop()
+    splash.completed.connect(loop.quit)
+    splash.start_loading()
+    loop.exec()
 
     # First-time setup
     if not _META.exists():
         dlg = SetupDialog()
+        if _LOGO.exists():
+            dlg.setWindowIcon(QIcon(str(_LOGO)))
         if dlg.exec() != QDialog.Accepted:
             sys.exit(0)
 
     # Login
     login = LoginDialog()
+    if _LOGO.exists():
+        login.setWindowIcon(QIcon(str(_LOGO)))
     if login.exec() != QDialog.Accepted:
         sys.exit(0)
 
     win = MainWindow(login.key)
+    if _LOGO.exists():
+        win.setWindowIcon(QIcon(str(_LOGO)))
     win.show()
     sys.exit(app.exec())
 
