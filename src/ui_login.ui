@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+  <class>LoginDialog</class>
+  <widget class="QDialog" name="LoginDialog">
+    <property name="windowTitle">
+      <string>Student‑Marks App – Login</string>
+    </property>
+    <property name="minimumSize">
+      <size>
+        <width>340</width>
+        <height>160</height>
+      </size>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+        <widget class="QLabel" name="headerLabel">
+          <property name="text">
+            <string>&lt;h1 style="margin:0"&gt;🔐 Secure Login&lt;/h1&gt;</string>
+          </property>
+          <property name="alignment">
+            <set>Qt::AlignCenter</set>
+          </property>
+        </widget>
+      </item>
+      <item>
+        <widget class="QGroupBox" name="groupBox">
+          <property name="title">
+            <string>Enter your password</string>
+          </property>
+          <layout class="QFormLayout" name="formLayout">
+            <property name="labelAlignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+            <item row="0" column="0">
+              <widget class="QLabel" name="labelPassword">
+                <property name="text">
+                  <string>Password:</string>
+                </property>
+              </widget>
+            </item>
+            <item row="0" column="1">
+              <widget class="QLineEdit" name="passwordLineEdit">
+                <property name="echoMode">
+                  <enum>QLineEdit::Password</enum>
+                </property>
+                <property name="placeholderText">
+                  <string>your secret …</string>
+                </property>
+              </widget>
+            </item>
+          </layout>
+        </widget>
+      </item>
+      <item>
+        <layout class="QHBoxLayout" name="buttonLayout">
+          <property name="spacing">
+            <number>8</number>
+          </property>
+          <item>
+            <spacer name="horizontalSpacer">
+              <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+                <size>
+                  <width>40</width>
+                  <height>20</height>
+                </size>
+              </property>
+            </spacer>
+          </item>
+          <item>
+            <widget class="QPushButton" name="loginButton">
+              <property name="text">
+                <string>&amp;Login</string>
+              </property>
+              <property name="default">
+                <bool>true</bool>
+              </property>
+            </widget>
+          </item>
+          <item>
+            <widget class="QPushButton" name="cancelButton">
+              <property name="text">
+                <string>&amp;Cancel</string>
+              </property>
+            </widget>
+          </item>
+        </layout>
+      </item>
+    </layout>
+  </widget>
+  <resources/>
+  <connections/>
+</ui>

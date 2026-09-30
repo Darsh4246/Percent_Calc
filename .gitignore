@@ -216,3 +216,10 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Project-specific: Embeddable Python & Local App Data
+python/
+*.db
+percent_calc.db
+app_meta.json
+src/app_meta.json

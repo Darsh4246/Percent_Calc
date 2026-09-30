@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+  <class>MainWindow</class>
+  <widget class="QMainWindow" name="MainWindow">
+    <property name="windowTitle">
+      <string>Student Marks Calculator</string>
+    </property>
+    <property name="minimumSize">
+      <size>
+        <width>800</width>
+        <height>600</height>
+      </size>
+    </property>
+    <widget class="QWidget" name="centralwidget">
+      <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+          <widget class="QTabWidget" name="tabWidget">
+            <property name="tabsClosable">
+              <bool>false</bool>
+            </property>
+            <widget class="QWidget" name="tabEnterMarks">
+              <attribute name="title">
+                <string>Enter Marks</string>
+              </attribute>
+              <layout class="QVBoxLayout" name="verticalLayoutEnterMarks">
+                <item>
+                  <widget class="QGroupBox" name="groupStudentExam">
+                    <property name="title">
+                      <string>Student and Exam</string>
+                    </property>
+                    <layout class="QFormLayout" name="formLayoutStudentExam">
+                      <property name="labelAlignment">
+                        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                      </property>
+                      <item row="0" column="0">
+                        <widget class="QLabel" name="labelName">
+                          <property name="text">
+                            <string>Student Name:</string>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="0" column="1">
+                        <widget class="QLineEdit" name="nameLineEdit">
+                          <property name="placeholderText">
+                            <string>e.g. Alice Smith</string>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="1" column="0">
+                        <widget class="QLabel" name="labelExam">
+                          <property name="text">
+                            <string>Exam Type:</string>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="1" column="1">
+                        <widget class="QComboBox" name="examComboBox"/>
+                      </item>
+                    </layout>
+                  </widget>
+                </item>
+                <item>
+                  <widget class="QGroupBox" name="groupMarks">
+                    <property name="title">
+                      <string>Marks (leave blank to skip)</string>
+                    </property>
+                    <layout class="QFormLayout" name="formLayoutMarks">
+                      <property name="labelAlignment">
+                        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                      </property>
+                      <item row="0" column="0">
+                        <widget class="QLabel" name="labelMath">
+                          <property name="text">
+                            <string>Math (80):</string>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="0" column="1">
+                        <widget class="QLineEdit" name="mathLineEdit">
+                          <property name="placeholderText">
+                            <string>0-80</string>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="1" column="0">
+                        <widget class="QLabel" name="labelScience">
+                          <property name="text">
+                            <string>Science (80):</string>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="1" column="1">
+                        <widget class="QLineEdit" name="scienceLineEdit">
+                          <property name="placeholderText">
+                            <string>0-80</string>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="2" column="0">
+                        <widget class="QLabel" name="labelSST">
+                          <property name="text">
+                            <string>SST (80):</string>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="2" column="1">
+                        <widget class="QLineEdit" name="sstLineEdit">
+                          <property name="placeholderText">
+                            <string>0-80</string>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="3" column="0">
+                        <widget class="QLabel" name="labelEnglish">
+                          <property name="text">
+                            <string>English (80):</string>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="3" column="1">
+                        <widget class="QLineEdit" name="englishLineEdit">
+                          <property name="placeholderText">
+                            <string>0-80</string>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="4" column="0">
+                        <widget class="QLabel" name="labelHindi">
+                          <property name="text">
+                            <string>Hindi (80):</string>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="4" column="1">
+                        <widget class="QLineEdit" name="hindiLineEdit">
+                          <property name="placeholderText">
+                            <string>0-80</string>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="5" column="0">
+                        <widget class="QLabel" name="labelAI">
+                          <property name="text">
+                            <string>AI (50):</string>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="5" column="1">
+                        <widget class="QLineEdit" name="aiLineEdit">
+                          <property name="placeholderText">
+                            <string>0-50</string>
+                          </property>
+                        </widget>
+                      </item>
+                    </layout>
+                  </widget>
+                </item>
+                <item>
+                  <layout class="QHBoxLayout" name="buttonLayoutEnter">
+                    <item>
+                      <spacer name="horizontalSpacerLeft">
+                        <property name="orientation">
+                          <enum>Qt::Horizontal</enum>
+                        </property>
+                      </spacer>
+                    </item>
+                    <item>
+                      <widget class="QPushButton" name="clearButton">
+                        <property name="text">
+                          <string>Clear</string>
+                        </property>
+                      </widget>
+                    </item>
+                    <item>
+                      <widget class="QPushButton" name="submitButton">
+                        <property name="text">
+                          <string>Submit</string>
+                        </property>
+                        <property name="default">
+                          <bool>true</bool>
+                        </property>
+                      </widget>
+                    </item>
+                    <item>
+                      <spacer name="horizontalSpacerRight">
+                        <property name="orientation">
+                          <enum>Qt::Horizontal</enum>
+                        </property>
+                      </spacer>
+                    </item>
+                  </layout>
+                </item>
+              </layout>
+            </widget>
+            <widget class="QWidget" name="tabStatistics">
+              <attribute name="title">
+                <string>Statistics</string>
+              </attribute>
+              <layout class="QVBoxLayout" name="verticalLayoutStatistics">
+                <item>
+                  <layout class="QHBoxLayout" name="summaryLayout">
+                    <item>
+                      <widget class="QLabel" name="labelAvg">
+                        <property name="text">
+                          <string>Average: -</string>
+                        </property>
+                        <property name="styleSheet">
+                          <string>font-weight: bold;</string>
+                        </property>
+                      </widget>
+                    </item>
+                    <item>
+                      <widget class="QLabel" name="labelHigh">
+                        <property name="text">
+                          <string>Highest: -</string>
+                        </property>
+                        <property name="styleSheet">
+                          <string>font-weight: bold; margin-left: 20px;</string>
+                        </property>
+                      </widget>
+                    </item>
+                    <item>
+                      <widget class="QLabel" name="labelLow">
+                        <property name="text">
+                          <string>Lowest: -</string>
+                        </property>
+                        <property name="styleSheet">
+                          <string>font-weight: bold; margin-left: 20px;</string>
+                        </property>
+                      </widget>
+                    </item>
+                    <item>
+                      <spacer name="horizontalSpacerStats">
+                        <property name="orientation">
+                          <enum>Qt::Horizontal</enum>
+                        </property>
+                      </spacer>
+                    </item>
+                  </layout>
+                </item>
+                <item>
+                  <widget class="QTableView" name="statsTableView"/>
+                </item>
+              </layout>
+            </widget>
+            <widget class="QWidget" name="tabGraphs">
+              <attribute name="title">
+                <string>Graphs</string>
+              </attribute>
+              <layout class="QVBoxLayout" name="verticalLayoutGraphs">
+                <item>
+                  <widget class="QWidget" name="graphContainer">
+                    <property name="minimumSize">
+                      <size>
+                        <width>400</width>
+                        <height>300</height>
+                      </size>
+                    </property>
+                  </widget>
+                </item>
+                <item>
+                  <layout class="QHBoxLayout" name="graphToolbar">
+                    <item>
+                      <spacer name="horizontalSpacerGraphLeft">
+                        <property name="orientation">
+                          <enum>Qt::Horizontal</enum>
+                        </property>
+                      </spacer>
+                    </item>
+                    <item>
+                      <widget class="QPushButton" name="btnRefreshGraph">
+                        <property name="text">
+                          <string>Refresh</string>
+                        </property>
+                      </widget>
+                    </item>
+                    <item>
+                      <widget class="QPushButton" name="btnExportGraph">
+                        <property name="text">
+                          <string>Export PNG</string>
+                        </property>
+                      </widget>
+                    </item>
+                    <item>
+                      <spacer name="horizontalSpacerGraphRight">
+                        <property name="orientation">
+                          <enum>Qt::Horizontal</enum>
+                        </property>
+                      </spacer>
+                    </item>
+                  </layout>
+                </item>
+              </layout>
+            </widget>
+          </widget>
+        </item>
+      </layout>
+    </widget>
+    <widget class="QStatusBar" name="statusbar"/>
+  </widget>
+  <resources/>
+  <connections/>
+</ui>

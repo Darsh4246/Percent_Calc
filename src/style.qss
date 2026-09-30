@@ -1,0 +1,61 @@
+/* -------------------------------------------------
+   General palette (light with subtle gray accents)
+   ------------------------------------------------- */
+QWidget {
+    background-color: #fafafa;
+    color: #2d2d2d;
+    font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+}
+QGroupBox {
+    border: 1px solid #c0c0c0;
+    border-radius: 6px;
+    margin-top: 12px;
+    font-weight: bold;
+}
+QGroupBox:title {
+    subcontrol-origin: margin;
+    subcontrol-position: top left;
+    padding: 0 3px;
+}
+QLineEdit, QComboBox {
+    background-color: #ffffff;
+    border: 1px solid #b0b0b0;
+    border-radius: 4px;
+    padding: 2px 4px;
+}
+QPushButton {
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 4px 12px;
+    min-width: 80px;
+}
+QPushButton:hover {
+    background-color: #357ab8;
+}
+QPushButton:pressed {
+    background-color: #285e8e;
+}
+QPushButton:default {
+    font-weight: bold;
+}
+QTableView {
+    background-color: #ffffff;
+    gridline-color: #d0d0d0;
+    selection-background-color: #4a90e2;
+    selection-color: white;
+}
+QHeaderView::section {
+    background-color: #eaeaea;
+    padding: 2px;
+    border: 1px solid #d0d0d0;
+}
+QStatusBar {
+    background-color: #e5e5e5;
+}
+QToolBar {
+    background: #e5e5e5;
+    spacing: 6px;
+    padding: 2px;
+}
